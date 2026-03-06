@@ -1,18 +1,20 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.4.0 → 1.5.0 (MINOR — CSS Architecture subsection added to Design & Brand Standards)
+Version change: 1.5.0 → 1.5.1 (PATCH — CSS Architecture updated to reflect Tailwind v4)
 Modified principles: none
-Added sections:
-  - Definition of Done (new section, consolidates all principles into a per-feature checklist)
+Added sections: none
 Removed sections: none
+Changes:
+  - CSS Architecture table: removed tailwind.config.ts row; token mapping now described
+    as @theme {} block inside app/globals.css (Tailwind v4 CSS-first approach)
+  - Tech Stack: Tailwind CSS version note updated to "v4 — CSS-first"
+  - tailwind.config.ts is NOT used in Tailwind v4; all config lives in app/globals.css
 Templates updated:
   ✅ .specify/memory/constitution.md — updated (this file)
-  ✅ .specify/templates/spec-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
-  ✅ .specify/templates/plan-template.md — no changes required
+  ⚠ .specify/templates/spec-template.md — may reference tailwind.config.ts; review if needed
 Reference:
-  .specify/memory/explain.md — plain-language explanation of all security decisions
+  specs/001-project-setup/research.md — full Tailwind v4 decision log
 Follow-up TODOs:
   - TODO(RATIFICATION_DATE): 2026-03-06 used as first-known date; confirm original
     project inception date if different and amend with a PATCH bump.
@@ -225,10 +227,11 @@ Introducing alternatives requires a MAJOR constitution amendment.
 
 | Layer | Technology | Version |
 |---|---|---|
+| Package manager | Yarn | latest stable |
 | Framework | Next.js | 15 — App Router only |
 | UI runtime | React | 19 |
 | Language | TypeScript | latest stable — strict mode |
-| Styling | Tailwind CSS | latest stable |
+| Styling | Tailwind CSS | v4 — CSS-first (`@theme {}` in `app/globals.css`; no `tailwind.config.ts`) |
 | Component library | shadcn/ui | latest stable |
 | Icons | Lucide React | latest stable |
 
@@ -276,18 +279,22 @@ Any deviation from the design system MUST be documented with rationale before im
 
 | Layer | File | Purpose |
 |---|---|---|
-| Design tokens | `app/globals.css` | CSS custom properties (HSL) |
-| Tailwind config | `tailwind.config.ts` | Token → utility class mapping |
+| Design tokens + token mapping | `app/globals.css` | CSS custom properties (HSL) in `:root`/`.dark` + `@theme {}` block mapping tokens to Tailwind utilities |
 | Utility classes | `app/globals.css` | Glass, glow, gradient helpers |
 | Component styles | Inline Tailwind only | Per-component styling |
 
 Rules:
 
-- Design tokens and utility classes MUST live in `app/globals.css` — this is the Next.js
-  App Router equivalent of `src/index.css` referenced in the style guide
+- `app/globals.css` is the single CSS file for the project — it MUST contain (in order):
+  1. `@import "tailwindcss"` (Tailwind v4 import replacing the v3 directives)
+  2. `@theme {}` block mapping CSS custom properties to Tailwind utility classes
+     (e.g. `--color-background: hsl(var(--background))` → generates `bg-background` utility)
+  3. `:root` and `.dark` selectors with raw HSL values from `mpmxai_styleguide.md`
+  4. Utility class definitions (`.glass`, `.glow-*`, `.text-gradient`, animations)
+- `tailwind.config.ts` MUST NOT be created — Tailwind v4 is CSS-first; the config file is
+  deprecated and not used by `create-next-app` Next.js 15
 - The Next.js default `globals.css` MUST be replaced with the mpmX.ai design tokens
   and utility classes before any feature work begins (one-time project setup task)
-- Token → utility mapping MUST be configured in `tailwind.config.ts`
 - Component styling MUST use inline Tailwind classes only — no CSS Modules, no
   styled-components, no CSS-in-JS libraries
 - UI primitives MUST live in `src/components/ui/` (shadcn/ui based)
@@ -401,4 +408,4 @@ plans, and task lists.
 Complexity beyond what the current task requires MUST be justified in the Complexity
 Tracking section of the relevant `plan.md`.
 
-**Version**: 1.5.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
+**Version**: 1.5.1 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
