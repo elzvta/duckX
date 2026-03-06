@@ -1,24 +1,21 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.2.0 → 1.3.0 (MINOR — new principle VIII Testing Philosophy added)
+Version change: 1.3.0 → 1.4.0 (MINOR — Definition of Done section added)
 Modified principles: none
 Added sections:
-  - VIII. Testing Philosophy (new core principle)
-  - Testing tools added to Tech Stack section
+  - Definition of Done (new section, consolidates all principles into a per-feature checklist)
 Removed sections: none
 Templates updated:
   ✅ .specify/memory/constitution.md — updated (this file)
-  ⚠ .specify/templates/plan-template.md — Constitution Check gate list should include
-     VIII. Testing Philosophy on next plan run
   ✅ .specify/templates/spec-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/plan-template.md — no changes required
 Reference:
   .specify/memory/explain.md — plain-language explanation of all security decisions
 Follow-up TODOs:
   - TODO(RATIFICATION_DATE): 2026-03-06 used as first-known date; confirm original
     project inception date if different and amend with a PATCH bump.
-  - Definition of Done principle deferred — to be added in subsequent amendment.
 -->
 
 # duckX Constitution
@@ -302,6 +299,64 @@ Any deviation from the design system MUST be documented with rationale before im
 6. **Brand Review**: Any new component or visual pattern MUST be validated against the
    design system before merging.
 
+## Definition of Done
+
+A feature is NOT done until every item in this checklist is satisfied. This applies to
+every user story, every PR, every merge.
+
+### Functional
+
+- [ ] All acceptance criteria from the feature spec are met
+- [ ] No known bugs against the specified behaviour
+- [ ] No regressions in existing features
+
+### Testing
+
+- [ ] All new utility functions and Server Actions have unit tests (Vitest)
+- [ ] All logic-bearing components have component tests (Vitest + RTL)
+- [ ] New critical user journeys have E2E tests (Playwright)
+- [ ] All tests passing — no skipped tests without documented justification
+
+### Accessibility
+
+- [ ] WCAG AA contrast verified on all new UI
+- [ ] All interactive elements reachable and operable by keyboard
+- [ ] `prefers-reduced-motion` respected for any new animations
+- [ ] Semantic HTML used — no `<div>` substituting a button or link
+
+### Internationalisation
+
+- [ ] Every user-visible string has both `en` and `de` translations
+- [ ] No hardcoded user-facing text in components
+
+### Design
+
+- [ ] All components use semantic design tokens — no hardcoded colours or fonts
+- [ ] New patterns validated against `mpmxai_styleguide.md`
+
+### Security
+
+- [ ] No new secrets exposed client-side
+- [ ] Any new Supabase tables have RLS enabled with explicit policies
+- [ ] Applicable security rules S-1 through S-9 satisfied
+
+### Performance & Mobile
+
+- [ ] Feature tested on mobile viewports (≤ 767 px)
+- [ ] No horizontal scroll introduced at any breakpoint
+- [ ] Glass effects disabled on mobile if used
+
+### Privacy
+
+- [ ] No new external CDN or third-party script dependencies introduced
+- [ ] Any new third-party integrations gated behind cookie consent
+
+### Code Quality
+
+- [ ] TypeScript strict mode satisfied — no `any`, no `@ts-ignore` without justification
+- [ ] No `console.log` or `console.error` left in production code
+- [ ] PR reviewed and approved before merge
+
 ## Governance
 
 This Constitution supersedes all other development practices and styling decisions for
@@ -323,4 +378,4 @@ plans, and task lists.
 Complexity beyond what the current task requires MUST be justified in the Complexity
 Tracking section of the relevant `plan.md`.
 
-**Version**: 1.3.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
+**Version**: 1.4.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
