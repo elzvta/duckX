@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.3.0 → 1.4.0 (MINOR — Definition of Done section added)
+Version change: 1.4.0 → 1.5.0 (MINOR — CSS Architecture subsection added to Design & Brand Standards)
 Modified principles: none
 Added sections:
   - Definition of Done (new section, consolidates all principles into a per-feature checklist)
@@ -272,6 +272,29 @@ Key constraints on feature development:
 
 Any deviation from the design system MUST be documented with rationale before implementation.
 
+### CSS Architecture
+
+| Layer | File | Purpose |
+|---|---|---|
+| Design tokens | `app/globals.css` | CSS custom properties (HSL) |
+| Tailwind config | `tailwind.config.ts` | Token → utility class mapping |
+| Utility classes | `app/globals.css` | Glass, glow, gradient helpers |
+| Component styles | Inline Tailwind only | Per-component styling |
+
+Rules:
+
+- Design tokens and utility classes MUST live in `app/globals.css` — this is the Next.js
+  App Router equivalent of `src/index.css` referenced in the style guide
+- The Next.js default `globals.css` MUST be replaced with the mpmX.ai design tokens
+  and utility classes before any feature work begins (one-time project setup task)
+- Token → utility mapping MUST be configured in `tailwind.config.ts`
+- Component styling MUST use inline Tailwind classes only — no CSS Modules, no
+  styled-components, no CSS-in-JS libraries
+- UI primitives MUST live in `src/components/ui/` (shadcn/ui based)
+- Feature components MUST be organised by domain under `src/components/`
+- File naming: PascalCase for component files, kebab-case for CSS assets and all
+  non-component files
+
 ## Development Workflow
 
 1. **Spec First**: Every feature MUST have an approved spec (`spec.md`) before
@@ -378,4 +401,4 @@ plans, and task lists.
 Complexity beyond what the current task requires MUST be justified in the Complexity
 Tracking section of the relevant `plan.md`.
 
-**Version**: 1.4.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
+**Version**: 1.5.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
