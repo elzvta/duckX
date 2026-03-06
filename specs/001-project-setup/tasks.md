@@ -25,7 +25,7 @@ structure. Must complete before any Goal work begins.
 - [ ] T001 Verify Node.js 22+ is active: run `nvm use 22` (or `nvm install 22`) and confirm
       `node --version` shows 22.x
 - [ ] T002 Initialize Next.js 15 app at repo root: `yarn create next-app@latest . --typescript
-      --eslint --tailwind --app --no-src-dir --import-alias "@/*"` — accept all prompts
+      --eslint --tailwind --app --src-dir --import-alias "@/*"` — accept all prompts
 - [ ] T003 Create application directory structure:
       `mkdir -p src/components/ui src/lib/supabase src/i18n e2e`
 - [ ] T004 Verify default app works: run `yarn dev`, confirm default page loads at
@@ -66,8 +66,8 @@ strict mode enabled.
 
 - [ ] T010 [G1] Verify `tsconfig.json` has `"strict": true` under `compilerOptions`; add it
       if missing — file: `tsconfig.json`
-- [ ] T011 [G1] Replace `app/page.tsx` with a minimal placeholder (single `<main>` with
-      a heading) that compiles without TypeScript errors — file: `app/page.tsx`
+- [ ] T011 [G1] Replace `src/app/page.tsx` with a minimal placeholder (single `<main>` with
+      a heading) that compiles without TypeScript errors — file: `src/app/page.tsx`
 - [ ] T012 [G1] Run `yarn build` and confirm it exits 0 with no TypeScript errors
 
 **Checkpoint** (SC-001, SC-002): `yarn dev` starts; `yarn build` passes cleanly.
@@ -82,17 +82,17 @@ strict mode enabled.
 **Independent Test**: Smoke-test page renders with dark background, Montserrat font, gradient
 heading, and glass card. No default Next.js styles visible.
 
-- [ ] T013 [G2] Replace `app/globals.css` entirely with Tailwind v4 structure per
+- [ ] T013 [G2] Replace `src/app/globals.css` entirely with Tailwind v4 structure per
       `quickstart.md §Step 3`: `@import "tailwindcss"`, `@theme {}` block with all mpmX.ai
       colour tokens mapped to Tailwind utilities, `:root`/`.dark` HSL values from
       `mpmxai_styleguide.md`, utility classes (`.glass`, `.glow-*`, `.text-gradient`,
-      `.gradient-bg`, animations, `prefers-reduced-motion` override) — file: `app/globals.css`
-- [ ] T014 [G2] Update `app/layout.tsx` per `quickstart.md §Step 4`: import Montserrat weights
+      `.gradient-bg`, animations, `prefers-reduced-motion` override) — file: `src/app/globals.css`
+- [ ] T014 [G2] Update `src/app/layout.tsx` per `quickstart.md §Step 4`: import Montserrat weights
       (400, 500, 600, 700), set `<html lang="en" className="dark">`, apply
-      `bg-background text-foreground font-sans antialiased` to `<body>` — file: `app/layout.tsx`
-- [ ] T015 [G2] Update `app/page.tsx` to smoke-test page per `quickstart.md §Step 5`: render
+      `bg-background text-foreground font-sans antialiased` to `<body>` — file: `src/app/layout.tsx`
+- [ ] T015 [G2] Update `src/app/page.tsx` to smoke-test page per `quickstart.md §Step 5`: render
       `text-gradient` heading, `text-foreground` paragraph, `.glass` card with `.glow-green`
-      using `bg-background` as page background — file: `app/page.tsx`
+      using `bg-background` as page background — file: `src/app/page.tsx`
 - [ ] T016 [G2] Verify visually: run `yarn dev`, confirm at http://localhost:3000 — dark
       background, Montserrat font, gradient heading, glass card with neon glow, no white
       backgrounds, no default Next.js styles
@@ -112,13 +112,13 @@ backgrounds, mpmX.ai token colours applied).
 
 - [ ] T017 [G3] Run `npx shadcn@latest init` — when prompted, set:
       components path: `src/components`, CSS variables: yes, base color: slate or neutral;
-      after init, verify `app/globals.css` mpmX.ai tokens are intact (merge shadcn additions
+      after init, verify `src/app/globals.css` mpmX.ai tokens are intact (merge shadcn additions
       without overwriting the `@theme {}` block or `:root` values)
 - [ ] T018 [P] [G3] Install shadcn components:
       `npx shadcn@latest add button input label card avatar separator`
       — files created in `src/components/ui/`
 - [ ] T019 [G3] Add a shadcn `<Button>` and `<Card>` to the smoke-test page
-      (`app/page.tsx`) to verify dark theme rendering — file: `app/page.tsx`
+      (`src/app/page.tsx`) to verify dark theme rendering — file: `src/app/page.tsx`
 - [ ] T020 [G3] Verify at http://localhost:3000 — Button and Card use mpmX.ai token colours,
       no white backgrounds anywhere on the page
 
@@ -128,7 +128,7 @@ backgrounds, mpmX.ai token colours applied).
 
 ## Phase 6: Goal 4 — Supabase Connection (P1)
 
-**Goal**: Two Supabase projects created. `@supabase/ssr` client helpers scaffold. `middleware.ts`
+**Goal**: Two Supabase projects created. `@supabase/ssr` client helpers scaffold. `proxy.ts`
 runs session refresh on every request. App boots without initialization errors.
 
 **Independent Test**: `yarn dev` boots with `.env.local` present; no Supabase errors in
@@ -144,9 +144,9 @@ console; middleware runs on every request without throwing.
       per `quickstart.md §7c` — file: `src/lib/supabase/client.ts`
 - [ ] T025 [P] [G4] Create `src/lib/supabase/server.ts` with `createServerClient` + cookies
       helper per `quickstart.md §7d` — file: `src/lib/supabase/server.ts`
-- [ ] T026 [G4] Create `middleware.ts` at repo root with session refresh placeholder per
+- [ ] T026 [G4] Create `proxy.ts` at repo root with session refresh placeholder per
       `quickstart.md §7e` and `research.md Decision 4`; use `getUser()` not `getSession()`;
-      return `supabaseResponse` — file: `middleware.ts`
+      return `supabaseResponse` — file: `proxy.ts`
 - [ ] T027 [G4] Verify `yarn dev` boots without errors; confirm in browser DevTools /
       terminal that middleware runs on navigation without throwing
 
@@ -261,7 +261,7 @@ Thread A — Goal 4 (Supabase):
   T022 Create .env.local
   T023 Create .env.test
   T024 + T025 in parallel: client.ts + server.ts
-  T026 Create middleware.ts
+  T026 Create proxy.ts
   T027 Verify
 
 Thread B — Goal 5 (Test Infrastructure):

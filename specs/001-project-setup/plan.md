@@ -39,14 +39,14 @@ this setup establishes the baseline all subsequent features build on.
 | IV. Internationalisation | ✅ N/A | No user-visible strings in this setup feature |
 | V. Performance & Mobile-First | ✅ N/A | No UI — glass/mobile utility classes are part of design system |
 | VI. Architecture Patterns | ✅ PASS | App Router, Server Components default, no banned patterns introduced |
-| VII. Security | ✅ PASS | `@supabase/ssr` used (not deprecated helper); service role key in `.env.local` only; middleware.ts scaffolded; `.env.local` gitignored |
+| VII. Security | ✅ PASS | `@supabase/ssr` used (not deprecated helper); service role key in `.env.local` only; proxy.ts scaffolded; `.env.local` gitignored |
 | VIII. Testing | ✅ PASS | Vitest + Playwright configured; 0 tests is acceptable for setup (no logic to test) |
 
 ### Post-Phase 1 Re-check
 
 | Principle | Status | Notes |
 |---|---|---|
-| I. Brand & Design System | ✅ PASS | Token architecture defined in research.md; `@theme {}` maps all mpmX.ai tokens |
+| I. Brand & Design System | ✅ PASS | Token architecture defined in research.md; `@theme {}` maps all mpmX.ai tokens in `src/app/globals.css` |
 | VII. Security | ✅ PASS | Middleware pattern validated (getUser not getSession; supabaseResponse returned) |
 
 ## Complexity Tracking
@@ -74,12 +74,11 @@ specs/001-project-setup/
 ### Source Code (repository root)
 
 ```text
-app/
-├── globals.css          # @import "tailwindcss" + @theme{} tokens + :root/.dark + utilities
-├── layout.tsx           # Root layout: Montserrat font import, dark class on <html>, lang="en"
-└── page.tsx             # Smoke-test page: renders bg-background, glass, text-gradient classes
-
 src/
+├── app/
+│   ├── globals.css      # @import "tailwindcss" + @theme{} tokens + :root/.dark + utilities
+│   ├── layout.tsx       # Root layout: Montserrat font import, dark class on <html>, lang="en"
+│   └── page.tsx         # Smoke-test page: renders bg-background, glass, text-gradient classes
 ├── components/
 │   └── ui/              # shadcn/ui: Button, Input, Label, Card, Avatar, Separator
 └── lib/
@@ -87,7 +86,7 @@ src/
         ├── client.ts    # createBrowserClient — Client Components only
         └── server.ts    # createServerClient — Server Components and Server Actions
 
-middleware.ts             # Supabase session refresh placeholder (no route protection yet)
+proxy.ts             # Supabase session refresh placeholder (no route protection yet)
 
 e2e/                      # Playwright E2E tests (empty for now)
 vitest.config.ts          # jsdom environment, globals, RTL setup file
@@ -99,10 +98,10 @@ playwright.config.ts      # webServer=yarn dev, loads .env.test, testDir=./e2e
                           #              (test project for Playwright)
 ```
 
-**Structure Decision**: Single Next.js project at repo root (App Router). `app/` at root
-(no `--src-dir` flag so `app/globals.css` path is correct per spec). `src/` created manually
-for non-Next.js application code (components, lib, i18n). shadcn/ui configured to use
-`src/components` as its components directory.
+**Structure Decision**: Single Next.js project at repo root (App Router). `--src-dir` flag
+used so `app/` is placed inside `src/app/` — the most popular Next.js layout. All application
+code lives under `src/`: `src/app/`, `src/components/`, `src/lib/`, `src/i18n/`. The `@/*`
+alias resolves to `./src/*`. shadcn/ui configured to use `src/components` as its components directory.
 
 ## Implementation Phases
 
@@ -112,15 +111,15 @@ for non-Next.js application code (components, lib, i18n). shadcn/ui configured t
    - TypeScript: Yes
    - ESLint: Yes
    - Tailwind CSS: Yes (gets v4)
-   - `src/` directory: **No** (keep `app/` at root)
+   - `src/` directory: **Yes** (`--src-dir` — places `app/` inside `src/app/`)
    - App Router: Yes
-   - Import alias: `@/*`
+   - Import alias: `@/*` → resolves to `./src/*`
 2. Verify `yarn dev` starts and the default page loads.
-3. Create `src/` directory manually for application code.
+3. Create additional `src/` subdirectories as needed: `src/i18n`
 
 ### Phase B — Design System
 
-1. Replace `app/globals.css` entirely with:
+1. Replace `src/app/globals.css` entirely with:
    - `@import "tailwindcss"`
    - `@theme {}` block mapping all mpmX.ai tokens to Tailwind utility classes
    - `:root` with dark-theme HSL values from `mpmxai_styleguide.md`
@@ -128,12 +127,12 @@ for non-Next.js application code (components, lib, i18n). shadcn/ui configured t
    - Utility classes: `.glass`, `.glow-green`, `.glow-blue`, `.glow-teal`, `.text-gradient`,
      `.gradient-bg`, animations, `prefers-reduced-motion` override
 2. Install Montserrat: `yarn add @fontsource/montserrat`
-3. Update `app/layout.tsx`:
+3. Update `src/app/layout.tsx`:
    - Import Montserrat weight CSS files (400, 500, 600, 700)
    - Set `<html lang="en" className="dark">`
    - Apply `bg-background text-foreground font-sans` to `<body>`
 4. Install Lucide React: `yarn add lucide-react`
-5. Update `app/page.tsx` with a smoke-test page that uses `bg-background`, `glass`,
+5. Update `src/app/page.tsx` with a smoke-test page that uses `bg-background`, `glass`,
    `text-gradient`, and a `text-foreground` heading. Verify visually.
 
 ### Phase C — shadcn/ui
@@ -159,7 +158,7 @@ for non-Next.js application code (components, lib, i18n). shadcn/ui configured t
    ```
 4. Create `src/lib/supabase/client.ts` (browser client).
 5. Create `src/lib/supabase/server.ts` (server client using cookies).
-6. Create `middleware.ts` at repo root with session refresh logic (see research.md Decision 4).
+6. Create `proxy.ts` at repo root with session refresh logic (see research.md Decision 4).
 7. Verify app boots without errors and middleware runs on every request.
 
 ### Phase E — Test Infrastructure

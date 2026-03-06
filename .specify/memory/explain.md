@@ -57,11 +57,11 @@ similar but behave very differently.
 the page still renders briefly before the check runs, or a fast user could navigate away
 before the redirect fires. Also, you'd have to duplicate the check on every protected page.
 
-**The fix**: `middleware.ts` runs on every request *before* any page loads. One file
+**The fix**: `proxy.ts` runs on every request *before* any page loads. One file
 protects all authenticated routes. Unauthenticated users are redirected to login
 immediately, before anything renders.
 
-**Location**: `/middleware.ts` at the project root.
+**Location**: `/proxy.ts` at the project root.
 
 ---
 
@@ -133,7 +133,7 @@ build it, but your UI needs to tell the user "check your new inbox to confirm."
 | S-2: Rate limiting on | Brute-force code guessing | Supabase (automatic) |
 | S-3: Server-side verification | Client-side bypass | Server Action |
 | S-4: httpOnly cookies | XSS token theft | `@supabase/ssr` |
-| S-5: Middleware route protection | Unauthenticated access | `middleware.ts` |
+| S-5: Middleware route protection | Unauthenticated access | `proxy.ts` |
 | S-6: RLS on all tables | Application code bugs leaking data | Supabase database |
 | S-7: Service role key server-only | Full database exposure | Env var discipline |
 | S-8: Email change verification | Account takeover via email change | Supabase (automatic) |

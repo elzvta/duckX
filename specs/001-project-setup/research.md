@@ -27,9 +27,9 @@ applied to the constitution and spec TR-004 was updated accordingly.
 
 ---
 
-### Decision 2 — CSS Token Architecture (`@theme {}` in `app/globals.css`)
+### Decision 2 — CSS Token Architecture (`@theme {}` in `src/app/globals.css`)
 
-**Decision**: All token definitions and Tailwind utility mappings live in `app/globals.css`.
+**Decision**: All token definitions and Tailwind utility mappings live in `src/app/globals.css`.
 
 ```css
 @import "tailwindcss";
@@ -101,11 +101,11 @@ is added in the auth feature (002-user-auth).
 
 **Pattern**:
 ```ts
-// middleware.ts
+// proxy.ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -181,7 +181,7 @@ export default defineConfig({
     exclude: ['node_modules', '.next', 'e2e'],
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, './') },
+    alias: { '@': path.resolve(__dirname, './src') },
   },
 })
 ```
@@ -256,7 +256,7 @@ eliminates the external DNS lookup.
 
 **Usage**:
 ```ts
-// app/layout.tsx
+// src/app/layout.tsx
 import '@fontsource/montserrat/400.css'
 import '@fontsource/montserrat/500.css'
 import '@fontsource/montserrat/600.css'
@@ -267,23 +267,23 @@ import '@fontsource/montserrat/700.css'
 
 ### Decision 9 — Project Directory Structure
 
-**Decision**: `app/` at repo root (no `--src-dir` flag); `src/` created manually.
+**Decision**: `src/app/` layout (`--src-dir` flag); all application code under `src/`.
 
 ```
-app/            ← Next.js routing, layouts, pages, globals.css
 src/
+  app/          ← Next.js routing, layouts, pages, globals.css
   components/
     ui/         ← shadcn/ui primitives
   lib/
     supabase/   ← client helpers
   i18n/         ← reserved for translation dictionaries
-middleware.ts   ← at repo root
+proxy.ts   ← at repo root
 ```
 
-**Rationale**: Using `--src-dir` would move `app/` into `src/app/`, contradicting the
-spec and constitution which reference `app/globals.css` (not `src/app/globals.css`).
-Not using `--src-dir` keeps `app/` at root while allowing `src/` for application code.
-shadcn/ui is configured to put components in `src/components` during init.
+**Rationale**: Using `--src-dir` places `app/` inside `src/app/`, which is the most widely
+adopted Next.js project layout. All application code (components, lib, i18n) lives under
+`src/` alongside `src/app/`, keeping the repo root clean. The `@/*` alias resolves to
+`./src/*`. shadcn/ui is configured to put components in `src/components` during init.
 
 ---
 

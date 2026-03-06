@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
-    "test:run": "vitest run",
-    "test:e2e": "playwright test"
+    "test:run": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test --pass-with-no-tests"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -43,5 +43,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
