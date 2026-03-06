@@ -8,7 +8,7 @@
 /* @theme inline: variables resolved at runtime, enabling opacity modifiers     */
 @theme inline {
   /* Fonts */
-  --font-sans:        var(--font-sans);
+  --font-sans: "Montserrat", system-ui, sans-serif;
 
   /* Colours — generates bg-*, text-*, border-* etc. utility classes */
   --color-background:        var(--background);

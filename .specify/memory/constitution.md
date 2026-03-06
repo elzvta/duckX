@@ -7,9 +7,9 @@ Added sections: none
 Removed sections: none
 Changes:
   - CSS Architecture table: removed tailwind.config.ts row; token mapping now described
-    as @theme {} block inside app/globals.css (Tailwind v4 CSS-first approach)
+    as @theme {} block inside src/app/globals.css (Tailwind v4 CSS-first approach)
   - Tech Stack: Tailwind CSS version note updated to "v4 — CSS-first"
-  - tailwind.config.ts is NOT used in Tailwind v4; all config lives in app/globals.css
+  - tailwind.config.ts is NOT used in Tailwind v4; all config lives in src/app/globals.css
 Templates updated:
   ✅ .specify/memory/constitution.md — updated (this file)
   ⚠ .specify/templates/spec-template.md — may reference tailwind.config.ts; review if needed
@@ -155,8 +155,9 @@ Non-negotiable rules:
 - **S-4** MUST use `@supabase/ssr` for session management; sessions MUST be stored in
   httpOnly, Secure, SameSite cookies; the deprecated `@supabase/auth-helpers-nextjs`
   MUST NOT be used
-- **S-5** All authenticated routes MUST be protected via Next.js middleware using Supabase
-  session validation — page-level checks alone are not sufficient
+- **S-5** All authenticated routes MUST be protected via Next.js proxy (`proxy.ts` at repo
+  root — Next.js 16 renamed `middleware.ts` to `proxy.ts`) using Supabase session validation;
+  page-level checks alone are not sufficient
 - **S-6** Row Level Security (RLS) MUST be enabled on all Supabase database tables;
   every table MUST have explicit RLS policies defined before production use
 - **S-7** `SUPABASE_SERVICE_ROLE_KEY` MUST never be prefixed with `NEXT_PUBLIC_`,
@@ -231,7 +232,7 @@ Introducing alternatives requires a MAJOR constitution amendment.
 | Framework | Next.js | 15 — App Router only |
 | UI runtime | React | 19 |
 | Language | TypeScript | latest stable — strict mode |
-| Styling | Tailwind CSS | v4 — CSS-first (`@theme {}` in `app/globals.css`; no `tailwind.config.ts`) |
+| Styling | Tailwind CSS | v4 — CSS-first (`@theme {}` in `src/app/globals.css`; no `tailwind.config.ts`) |
 | Component library | shadcn/ui | latest stable |
 | Icons | Lucide React | latest stable |
 
@@ -279,13 +280,13 @@ Any deviation from the design system MUST be documented with rationale before im
 
 | Layer | File | Purpose |
 |---|---|---|
-| Design tokens + token mapping | `app/globals.css` | CSS custom properties (HSL) in `:root`/`.dark` + `@theme {}` block mapping tokens to Tailwind utilities |
-| Utility classes | `app/globals.css` | Glass, glow, gradient helpers |
+| Design tokens + token mapping | `src/app/globals.css` | CSS custom properties (HSL) in `:root`/`.dark` + `@theme {}` block mapping tokens to Tailwind utilities |
+| Utility classes | `src/app/globals.css` | Glass, glow, gradient helpers |
 | Component styles | Inline Tailwind only | Per-component styling |
 
 Rules:
 
-- `app/globals.css` is the single CSS file for the project — it MUST contain (in order):
+- `src/app/globals.css` is the single CSS file for the project — it MUST contain (in order):
   1. `@import "tailwindcss"` (Tailwind v4 import replacing the v3 directives)
   2. `@theme {}` block mapping CSS custom properties to Tailwind utility classes
      (e.g. `--color-background: hsl(var(--background))` → generates `bg-background` utility)

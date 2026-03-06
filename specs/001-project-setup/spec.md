@@ -42,11 +42,11 @@ dark theme applied correctly (no white backgrounds, correct token colours).
 
 Create two Supabase projects: one for production, one for testing. Install
 `@supabase/ssr` and `@supabase/supabase-js`. Configure environment variables
-in `.env.local`. Scaffold the Next.js `middleware.ts` with Supabase session
+in `.env.local`. Scaffold the Next.js `proxy.ts` with Supabase session
 refresh logic (placeholder — no route protection yet).
 
 **Verified when**: The app boots and the Supabase client initializes without errors.
-`middleware.ts` runs on every request without throwing.
+`proxy.ts` runs on every request without throwing.
 
 ### Goal 5 — Test Infrastructure (P2)
 
@@ -71,10 +71,10 @@ and serves the app at the Vercel preview URL.
 
 - **TR-001**: Project MUST use Yarn as the package manager — `npm` scripts MUST NOT be used
 - **TR-002**: Project MUST use Next.js 15 App Router with TypeScript strict mode
-- **TR-003**: `app/globals.css` MUST contain all mpmX.ai design tokens and utility classes;
+- **TR-003**: `src/app/globals.css` MUST contain all mpmX.ai design tokens and utility classes;
   Next.js default styles MUST be removed entirely
 - **TR-004**: CSS custom property → Tailwind utility mapping MUST use the `@theme {}` block
-  in `app/globals.css` (Tailwind v4 CSS-first); `tailwind.config.ts` MUST NOT be created
+  in `src/app/globals.css` (Tailwind v4 CSS-first); `tailwind.config.ts` MUST NOT be created
 - **TR-005**: Montserrat MUST be loaded via `@fontsource/montserrat` — no external CDN
 - **TR-006**: shadcn/ui MUST be initialized with the dark theme and mpmX.ai CSS variables
 - **TR-007**: Two Supabase projects MUST exist: `duckx-prod` and `duckx-test`
@@ -85,7 +85,7 @@ and serves the app at the Vercel preview URL.
 - **TR-010**: `.env.local` MUST be listed in `.gitignore`
 - **TR-011**: Vitest MUST be configured with React Testing Library and jsdom environment
 - **TR-012**: Playwright MUST be configured to run against the test Supabase project
-- **TR-013**: `middleware.ts` MUST exist at the repo root with Supabase session handling
+- **TR-013**: `proxy.ts` MUST exist at the repo root with Supabase session handling
 
 ## Success Criteria
 

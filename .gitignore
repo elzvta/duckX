@@ -42,3 +42,10 @@ next-env.d.ts
 
 # internal / sensitive docs
 mpmxai_styleguide.md
+
+# testing artifacts
+/playwright-report/
+/test-results/
+
+# editor temp files
+.!*!*

@@ -27,13 +27,13 @@ yarn create next-app@latest . \
   --eslint \
   --tailwind \
   --app \
-  --no-src-dir \
+  --src-dir \
   --import-alias "@/*"
 ```
 
-> `--no-src-dir` keeps `app/` at the repository root. We create `src/` manually for
-> application code (components, lib, i18n). This matches the project's path conventions
-> (`app/globals.css`, `src/components/ui/`).
+> `--src-dir` places `app/` inside `src/app/` — the most widely adopted Next.js layout.
+> All application code lives under `src/`: `src/app/`, `src/components/`, `src/lib/`, `src/i18n/`.
+> The `@/*` alias resolves to `./src/*`.
 
 Verify it works:
 ```bash
@@ -41,9 +41,9 @@ yarn dev
 # Open http://localhost:3000 — default Next.js page should load
 ```
 
-Create the `src/` directory structure:
+Create additional `src/` subdirectories:
 ```bash
-mkdir -p src/components/ui src/lib/supabase src/i18n
+mkdir -p src/i18n
 ```
 
 ---
@@ -68,9 +68,9 @@ npx playwright install chromium
 
 ---
 
-## Step 3 — Design System (`app/globals.css`)
+## Step 3 — Design System (`src/app/globals.css`)
 
-Replace `app/globals.css` entirely with the mpmX.ai design tokens. The file structure is:
+Replace `src/app/globals.css` entirely with the mpmX.ai design tokens. The file structure is:
 
 ```css
 @import "tailwindcss";
@@ -196,7 +196,7 @@ Replace `app/globals.css` entirely with the mpmX.ai design tokens. The file stru
 
 ---
 
-## Step 4 — Root Layout (`app/layout.tsx`)
+## Step 4 — Root Layout (`src/app/layout.tsx`)
 
 ```tsx
 import type { Metadata } from 'next'
@@ -224,7 +224,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ---
 
-## Step 5 — Smoke-Test Page (`app/page.tsx`)
+## Step 5 — Smoke-Test Page (`src/app/page.tsx`)
 
 Replace the default page with a design token verification page:
 
@@ -344,13 +344,13 @@ export async function createClient() {
 }
 ```
 
-### 7e. Middleware (`middleware.ts`)
+### 7e. Proxy (`proxy.ts`)
 
 ```ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -403,7 +403,7 @@ export default defineConfig({
     exclude: ['node_modules', '.next', 'e2e'],
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, './') },
+    alias: { '@': path.resolve(__dirname, './src') },
   },
 })
 ```
