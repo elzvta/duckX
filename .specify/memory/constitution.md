@@ -1,23 +1,24 @@
 <!--
 Sync Impact Report
 ==================
-Version change: N/A → 1.0.0 (initial ratification — no prior version existed)
-Modified principles: none (first version)
+Version change: 1.2.0 → 1.3.0 (MINOR — new principle VIII Testing Philosophy added)
+Modified principles: none
 Added sections:
-  - Core Principles (5 principles)
-  - Design & Brand Standards
-  - Development Workflow
-  - Governance
+  - VIII. Testing Philosophy (new core principle)
+  - Testing tools added to Tech Stack section
 Removed sections: none
 Templates updated:
-  ✅ .specify/memory/constitution.md — written (this file)
-  ⚠ .specify/templates/plan-template.md — Constitution Check section uses generic
-     placeholder; update after first plan to reference specific principle gates
-  ✅ .specify/templates/spec-template.md — no changes required (no new mandatory sections)
+  ✅ .specify/memory/constitution.md — updated (this file)
+  ⚠ .specify/templates/plan-template.md — Constitution Check gate list should include
+     VIII. Testing Philosophy on next plan run
+  ✅ .specify/templates/spec-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
+Reference:
+  .specify/memory/explain.md — plain-language explanation of all security decisions
 Follow-up TODOs:
   - TODO(RATIFICATION_DATE): 2026-03-06 used as first-known date; confirm original
     project inception date if different and amend with a PATCH bump.
+  - Definition of Done principle deferred — to be added in subsequent amendment.
 -->
 
 # duckX Constitution
@@ -39,6 +40,8 @@ Non-negotiable rules:
   not ad hoc inline styles
 - MUST apply the dark-theme palette; light-theme variants are not supported unless
   explicitly specified in a feature spec
+- MUST use shadcn/ui as the base component library (`src/components/ui/`); custom
+  components MUST be built on top of shadcn/ui primitives, not from scratch
 
 Rationale: Brand consistency across every touchpoint is essential to mpmX.ai's positioning
 as an enterprise-grade, trustworthy product. Ad-hoc styles erode the design system and
@@ -114,6 +117,146 @@ Non-negotiable rules:
 Rationale: Enterprise users frequently access on mobile or lower-powered devices.
 Performance is a core aspect of the "Future-forward, Trustworthy" brand identity.
 
+### VI. Architecture Patterns (NON-NEGOTIABLE)
+
+All features MUST follow Next.js 15 App Router conventions and modern React 19 patterns.
+
+Non-negotiable rules:
+
+- Server Components are the default — every component is a Server Component unless it
+  explicitly requires browser APIs, event listeners, or client-only state
+- Client Components MUST be marked `'use client'` and kept as small as possible;
+  push them to the leaves of the component tree
+- Server Actions are the primary mutation pattern — form submissions and data writes
+  MUST use Server Actions, not client-side `fetch()` to API Routes
+- API Routes (`app/api/...`) are reserved for webhooks and integrations with external
+  services that call into the app; they MUST NOT be used for user-facing form actions
+- Data fetching MUST happen in Server Components — never in `useEffect`
+- The following patterns are BANNED — they indicate a deprecated mental model:
+  - `getServerSideProps` / `getStaticProps` (Pages Router patterns)
+  - `React.FC` or `React.FunctionComponent` type annotations
+  - `useEffect` for data fetching when a Server Component applies
+  - Client-side `fetch()` to internal API Routes for user-facing mutations
+
+Rationale: Next.js 15 App Router and React 19 Server Components reduce client bundle size,
+eliminate request waterfalls, and provide end-to-end type safety. Deviating from these
+patterns undermines the performance principle (V) and increases complexity for no gain.
+
+### VII. Security
+
+All features MUST apply defence-in-depth: application logic, database, and session layers
+each enforce access control independently.
+
+Non-negotiable rules:
+
+- **S-1** OTP codes MUST be configured to expire within 10 minutes (Supabase Auth settings)
+- **S-2** Supabase Auth rate limiting MUST never be disabled or bypassed
+- **S-3** All auth verification (OTP, session checks) MUST happen in Server Actions or
+  middleware — never in Client Components
+- **S-4** MUST use `@supabase/ssr` for session management; sessions MUST be stored in
+  httpOnly, Secure, SameSite cookies; the deprecated `@supabase/auth-helpers-nextjs`
+  MUST NOT be used
+- **S-5** All authenticated routes MUST be protected via Next.js middleware using Supabase
+  session validation — page-level checks alone are not sufficient
+- **S-6** Row Level Security (RLS) MUST be enabled on all Supabase database tables;
+  every table MUST have explicit RLS policies defined before production use
+- **S-7** `SUPABASE_SERVICE_ROLE_KEY` MUST never be prefixed with `NEXT_PUBLIC_`,
+  imported in Client Components, or returned to the browser in any form
+- **S-8** Email changes MUST require verification of the new address before taking effect;
+  the UI MUST inform the user to check their new inbox to confirm
+- **S-9** File uploads MUST validate MIME type (allow-list: `image/jpeg`, `image/png`,
+  `image/webp`), enforce a maximum size (2 MB), and scope the storage path to the
+  authenticated user's ID
+
+Rationale: The app handles user identity and personal data. Each rule targets a specific,
+real attack vector: brute-force (S-1, S-2), client-side trust (S-3), session hijacking
+(S-4), route bypass (S-5), data leakage (S-6), credential exposure (S-7), account
+takeover (S-8), and malicious uploads (S-9).
+
+### VIII. Testing Philosophy
+
+Tests exist to protect behaviour, not to hit coverage numbers. The rule is: test logic,
+not markup.
+
+**Tooling**:
+
+- Unit & component tests: **Vitest** + **React Testing Library**
+- E2E tests: **Playwright**
+
+**What MUST be tested**:
+
+- All utility and helper functions (unit tests)
+- All Server Actions (unit tests, Supabase client mocked)
+- All components with conditional rendering, form logic, or error/loading states
+  (component tests)
+- All components that invoke Server Actions (component tests — verify submit behaviour
+  and error feedback)
+- Critical user journeys (E2E tests):
+  - Register → receive OTP → enter code → land on profile
+  - Wrong or expired OTP → error shown → retry succeeds
+  - Update email → "check your new inbox" message shown
+  - Upload avatar → avatar reflected on profile
+  - Logout → redirected to login, protected route blocked
+
+**What MUST NOT be tested**:
+
+- Purely presentational components with no conditional logic (e.g. `<Badge>`, `<Spinner>`,
+  static layout wrappers)
+- shadcn/ui primitives — they are tested upstream
+
+**Supabase in tests**:
+
+- Unit and component tests MUST mock the Supabase client — no real network calls
+- E2E tests MUST run against a dedicated Supabase test project — never against production
+
+**CI gate**:
+
+- All Vitest unit and component tests MUST pass on every PR
+- All Playwright E2E tests MUST pass on every PR
+- A PR MUST NOT be merged if any test is failing or skipped without documented justification
+
+Rationale: Testing at the right layer catches real bugs without creating brittle tests
+that slow development. Mocking Supabase in unit tests keeps them fast; using a real test
+project in E2E ensures RLS policies and database behaviour are validated end-to-end.
+
+## Tech Stack
+
+These versions are locked for the project. All features MUST use these technologies.
+Introducing alternatives requires a MAJOR constitution amendment.
+
+### Frontend
+
+| Layer | Technology | Version |
+|---|---|---|
+| Framework | Next.js | 15 — App Router only |
+| UI runtime | React | 19 |
+| Language | TypeScript | latest stable — strict mode |
+| Styling | Tailwind CSS | latest stable |
+| Component library | shadcn/ui | latest stable |
+| Icons | Lucide React | latest stable |
+
+### Backend
+
+| Layer | Technology | Notes |
+|---|---|---|
+| Platform | Supabase | Auth + Database + Storage bundled |
+| Auth | Supabase Auth | OTP email flow |
+| Database | Supabase PostgreSQL | Managed, accessed via Supabase JS client |
+| File storage | Supabase Storage | Private buckets; signed URLs only |
+
+### Testing
+
+| Layer | Technology | Scope |
+|---|---|---|
+| Unit & component | Vitest + React Testing Library | Functions, Server Actions, logic-bearing components |
+| E2E | Playwright | Critical user journeys; runs against test Supabase project |
+
+### Deployment
+
+| Layer | Technology | Notes |
+|---|---|---|
+| Hosting | Vercel | Zero-config for Next.js; Server Actions supported natively |
+
 ## Design & Brand Standards
 
 The mpmX.ai Brand & Design System (`mpmxai_styleguide.md`) governs all visual decisions.
@@ -145,6 +288,13 @@ Any deviation from the design system MUST be documented with rationale before im
    - III. Accessibility — acceptance criteria include WCAG AA requirements
    - IV. Internationalisation First — translation keys planned for both `en` and `de`
    - V. Performance & Mobile-First — mobile behaviour defined in spec/plan
+   - VI. Architecture Patterns — no banned patterns, Server Actions used for mutations,
+     Server Components used for data fetching
+   - VII. Security — RLS enabled, auth verification server-side, no service role key
+     exposed, S-1 through S-9 satisfied
+   - VIII. Testing Philosophy — all functions and Server Actions have unit tests, logic-
+     bearing components have component tests, critical journeys have E2E tests, all
+     passing on this PR
 4. **i18n Concurrent**: Translation keys MUST be added alongside component development,
    not deferred as a post-development task.
 5. **Accessibility Review**: Accessibility requirements MUST be part of the definition of
@@ -173,4 +323,4 @@ plans, and task lists.
 Complexity beyond what the current task requires MUST be justified in the Complexity
 Tracking section of the relevant `plan.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
+**Version**: 1.3.0 | **Ratified**: 2026-03-06 | **Last Amended**: 2026-03-06
